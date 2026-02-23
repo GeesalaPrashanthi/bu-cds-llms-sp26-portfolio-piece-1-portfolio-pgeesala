@@ -1,81 +1,90 @@
-# Portfolio Piece Assignment
+# Portfolio Piece: Word Embeddings → Attention (simple + from scratch)
 
-This repository is a template for your portfolio piece. You'll build on your weekly labs to create a polished, well-documented project that demonstrates your understanding of the concepts we've covered.
+## What this project is
+This is a small NLP portfolio notebook that shows my understanding two important ideas:
 
-## What You're Building
+1) **Word embeddings** (Word2Vec / GloVe / fastText style vectors)  
+2) **Scaled dot-product attention** (the math behind Transformers)
 
-Your portfolio piece could be a Jupyter notebook (or set of notebooks), or another reporting format (PDF with embedded images, etc.) that:
-- Demonstrates understanding of course concepts
-- Includes working, well-documented code (in notebooks or imported scripts)
-- Analyzes results critically
-- Tells a clear story from problem/question to approach to results and insights
+Then I connect them: I take word vectors for a sentence and run **self-attention** to see “who attends to who”.
 
-If you'd like, this can become part of your professional portfolio, so treat it as work you'd be proud to show a potential employer or collaborator.
+I’m not training a big model here. The point is: clean implementation + clear inspection.
 
-## Grading
+## Files
+- `notebooks/main_analysis_FINAL.ipynb` → the full walkthrough
+- `outputs/` → saved figures + small tables created by the notebook
+- `requirements.txt` → packages used
 
-Your work will be evaluated on:
-- **Conceptual Understanding** (5 pts): Do you explain *why* you chose specific methods? Do you connect to course material?
-- **Technical Implementation** (5 pts): Does your code run without errors? Do all components work correctly?
-- **Code Quality & Documentation** (5 pts): Is your notebook/code clear and well-organized? Does it tell a story?
-- **Critical Analysis** (5 pts): Do you interpret results thoughtfully? Discuss limitations and tradeoffs?
-- **Peer Reviews** (5 pts): Did you provide constructive feedback on two classmates' projects?
+## What outputs you should see (and what they mean)
+When you run the notebook, it prints + plots a few things:
 
-See the full [rubric](https://lauren897.github.io/cds593-private/rubrics.html#portfolio-piece-rubric) for details.
+### 1) Nearest neighbors
+You’ll see lists like “Neighbors for 'king' …” with similarity scores.
+This shows which words are close in the embedding space.
 
-## Suggested Repository Structure
+### 2) Analogies
+You’ll see examples like:
+`man : king :: woman : ?`
+This is the classic vector arithmetic idea: **v(king) - v(man) + v(woman)**.
 
-You're free to organize this however makes sense for your project, but here's a structure that works well:
+### 3) Bias-style probe table
+You’ll see a small table (`bias_df`) with columns like:
+- `sim_to_male`
+- `sim_to_female`
+- `male_minus_female`
 
+This is a simple way to show that embeddings can have different association patterns.
+It is **not** a full bias audit, just a small demo.
+
+### 4) PCA plot of word clusters
+A 2D scatter plot that groups related words.
+This is just for intuition (PCA changes the shape, but you can still see clusters).
+
+### 5) Attention heatmaps
+Heatmaps show attention weights (rows are queries, columns are keys).
+You’ll see:
+- random attention (sanity check)
+- multi-head attention (head 0)
+- self-attention over a sentence (head 0)
+
+### 6) “it” attention printout
+For a few heads, it prints the top tokens that “it” attends to.
+This is not true coreference resolution, but it shows how to inspect attention.
+
+## Where outputs are saved
+The notebook saves files into `outputs/` automatically:
+- `pca_words.png`
+- `attention_random_qkv.png`
+- `mha_head0.png`
+- `self_attention_sentence_head0.png`
+- `bias_probe_table.csv`
+- `attn_random_qkv.npy`
+- `attn_mha_sanity.npy`
+- `attn_sentence.npy`
+
+## How to run
+### Recommended (Python 3.12)
+Matplotlib can be shaky on Python 3.13 right now, so I recommend Python 3.12.
+
+1) Create a virtual environment
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
 ```
-your-portfolio-piece/
-├── README.md (this file - update it with your project details)
-├── requirements.txt or equivalent
-├── notebooks/
-│   └── main_analysis.ipynb (or multiple notebooks)
-├── src/ (optional - if you refactor code into modules)
-├── data/ (see note below about data)
-├── outputs/ (figures, saved models, etc.)
+
+2) Install dependencies
+```bash
+pip install -U pip
+pip install -r requirements.txt
 ```
 
-**About data**: If your dataset is small (<10 MB), you can include it in the repo. For larger datasets, put instructions in your README for how to download/access it, and add data files to `.gitignore`.
+3) Run the notebook
+```bash
+jupyter lab
+```
+Open `notebooks/main_analysis_FINAL.ipynb`.
 
-## Writing a Good README
-
-Once you've completed your project, update this README to include:
-
-1. **Project Title** - make it descriptive
-2. **Overview** - 2-3 sentences: what problem are you solving and why?
-3. **Methods** - what approaches did you use? Why these choices?
-4. **Key Results** - what did you find? (keep it brief, details go in the notebook)
-5. **How to Run** - step-by-step instructions so someone can reproduce your work
-6. **Requirements** - what packages/versions are needed?
-
-Your README should make it easy for someone to understand what you did and run your code.
-
-## Peer Review Process
-
-You'll be assigned two classmates' repositories to review. Provide your feedback through **pull requests**:
-
-1. Clone your assigned classmate's repository to your machine
-2. Read through their notebooks, scripts, and documentation
-3. Try running the code yourself
-4. Create a pull request with inline comments on their code/analysis
-5. In the PR description, provide overall feedback addressing:
-   - What worked well conceptually and technically?
-   - What could be clearer in the documentation or analysis?
-   - Specific suggestions for deeper analysis or improvements
-   - Overall strengths of the project
-
-Be constructive and specific. Good peer reviews identify both strengths and areas for growth.
-
-You are *not* grading each other's pieces, just providing feedback.
-
-## Timeline
-
-- **Friday, Feb 20**: Portfolio piece due (push your final version to this repo)
-- **Friday, Feb 27**: Peer reviews due (submit PRs with feedback to your assigned classmates' repos)
-
-## Questions?
-
-We can discuss more in class, in office hours, in discussion, and you can ask on Piazza.
+## Notes / limitations (short)
+- Embeddings here are **static** (one vector per word, no context).
+- The bias probe is small and not a full evaluation.
+- Attention is not trained on a task in this notebook — it’s showing the mechanism.
